@@ -12,6 +12,7 @@ def initial_setup():
     conn.execute(
         """
         DROP TABLE IF EXISTS animals;
+        DROP TABLE IF EXISTS user;
         """
     )
     conn.execute(
@@ -22,6 +23,14 @@ def initial_setup():
           description TEXT,
           image TEXT
         );
+
+        CREATE TABLE user (
+          id INTEGER PRIMARY KEY NOT NULL,
+          username TEXT,
+          password_digest TEXT,
+          email TEXT
+        );
+
         """
     )
     conn.commit()
