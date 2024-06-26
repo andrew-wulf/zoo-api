@@ -17,3 +17,10 @@ def create():
 @app.route("/animals/<id>.json")
 def show(id):
     return animals_find_by_id(id)
+
+@app.route("/animals/<id>.json", methods=["PATCH"])
+def update(id):
+    name = request.form.get("name")
+    description = request.form.get("description")
+    image = request.form.get("image")
+    return animals_update_by_id(id, name, description, image)
