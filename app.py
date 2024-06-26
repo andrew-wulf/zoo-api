@@ -24,3 +24,7 @@ def update(id):
     description = request.form.get("description")
     image = request.form.get("image")
     return animals_update_by_id(id, name, description, image)
+
+@app.route("/animals/<id>.json", methods=["DELETE"])
+def destroy(id):
+    return animals_destroy_by_id(id)
