@@ -1,9 +1,21 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+
 import bcrypt
+from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required, JWTManager
+
 from animals import *
+from db import get_key
 
 app = Flask(__name__)
+
+# Allow requests from frontend
+cors = CORS(app, resources={"*": {"origins": "http://localhost:5173"}})
+
+# JWT manager for sessions
+app.config["JWT_SECRET_KEY"] = get_key()
+jwt = JWTManager(app)
+
 
 #animals routes
 
@@ -32,7 +44,7 @@ def update(id):
 @app.route("/animals/<id>.json", methods=["DELETE"])
 def destroy(id):
     return animals_destroy_by_id(id)
-cors = CORS(app, resources={"*": {"origins": "http://localhost:5173"}})
+
 
 @app.route('/')
 def hello():
@@ -103,6 +115,7 @@ def create_user():
 
 
 
+
 @app.route("/sessions.json", methods=["POST"])
 def sessions_create():
     if request.method == 'POST':
@@ -119,10 +132,11 @@ def sessions_create():
         ).fetchone()
         
         if res:
-            hashed = res[2]
+            username, hashed = res[1], res[2]
 
             if bcrypt.checkpw(password, hashed):
-                return {'id': res[0], 'username': res[1], 'email': res[3]}
+                access_token = create_access_token(identity=username)
+                return jsonify(jwt=access_token)
     
         return "Invalid login supplied."
         

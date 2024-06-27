@@ -1,4 +1,5 @@
 import sqlite3
+import bcrypt
 
 
 def connect_to_db():
@@ -11,6 +12,7 @@ def initial_setup():
     conn = connect_to_db()
     conn.execute("DROP TABLE IF EXISTS animals;")
     conn.execute("DROP TABLE IF EXISTS users;")
+    conn.execute("DROP TABLE IF EXISTS secret;")
 
     conn.execute(
         """
@@ -32,8 +34,40 @@ def initial_setup():
         );
         """
     )
+    conn.execute(
+        """
+        CREATE TABLE secret (
+          id INTEGER PRIMARY KEY NOT NULL,
+          key TEXT
+        );
+        """
+    )
+
     conn.commit()
-    print("Table created successfully")
+    print("Tables created successfully")
+
+
+    # SEEDS
+
+    conn.execute("""
+    INSERT INTO secret (key)
+    VALUES (?)
+    """,
+    (secret_key_generator(),),
+    )
+
+    # Admin user (admin, admin@gmail.com, password)
+    password = 'password'
+    hashed = bcrypt.hashpw(bytes(password, 'utf-8'), bcrypt.gensalt())
+
+    conn.execute(
+    """
+    INSERT INTO users (username, email, password_digest)
+    VALUES (?, ?, ?)
+    """,
+    ('admin', 'admin@gmail.com', hashed),
+    )
+    conn.commit()
 
     animals_seed_data = [
         ("tiger", "male mid size Bengal tiger", "https://www.cattales.org/wp-content/uploads/sites/499/2022/10/Tigger-in-pool-cropped-JO-1024x1024.jpg"),
@@ -54,6 +88,15 @@ def initial_setup():
 
 
 
+def secret_key_generator():
+    import secrets
+    return secrets.token_urlsafe(16)
+
+
+def get_key():
+    conn = connect_to_db()
+    res = conn.execute('SELECT * from secret').fetchone()
+    return res[1]
 
 
 if __name__ == "__main__":
