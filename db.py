@@ -9,12 +9,9 @@ def connect_to_db():
 
 def initial_setup():
     conn = connect_to_db()
-    conn.execute(
-        """
-        DROP TABLE IF EXISTS animals;
-        DROP TABLE IF EXISTS user;
-        """
-    )
+    conn.execute("DROP TABLE IF EXISTS animals;")
+    conn.execute("DROP TABLE IF EXISTS users;")
+
     conn.execute(
         """
         CREATE TABLE animals (
@@ -23,14 +20,16 @@ def initial_setup():
           description TEXT,
           image TEXT
         );
-
-        CREATE TABLE user (
+        """
+    )
+    conn.execute(
+        """
+        CREATE TABLE users (
           id INTEGER PRIMARY KEY NOT NULL,
           username TEXT,
           password_digest TEXT,
           email TEXT
         );
-
         """
     )
     conn.commit()
