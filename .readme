@@ -1,0 +1,10 @@
+
+
+
+
+Project Dependencies:
+
+flask
+flask-jwt-extended
+Flask-Cors
+bcrypt
